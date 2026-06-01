@@ -1,0 +1,31 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+
+# Audio & reports
+audio/*.wav
+audio/*.mp3
+audio/*.webm
+report/*.json
+*.log
+
+# Temp files
+temp_mfa/
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

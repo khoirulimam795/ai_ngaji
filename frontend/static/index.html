@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AI NGAJI | Deteksi Tajwid & Koreksi Bacaan Quran</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Amiri:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+
+<body>
+    <div id="canvas-container"></div>
+
+    <div class="app-wrapper">
+        <div class="header">
+            <div class="logo">
+                <h1><i class="fas fa-moon"></i> AI NGAJI</h1>
+                <p>Deteksi Tajwid & Koreksi Bacaan Quran | Belajar Lebih Mudah</p>
+            </div>
+            <div class="header-actions">
+                <div class="user-badge" id="userBadge">
+                    <i class="fas fa-user"></i> <span id="userIdDisplay">Loading...</span>
+                </div>
+                <button id="themeToggle" class="theme-toggle-btn">
+                    <i class="fas fa-sun" id="themeIcon"></i> <span id="themeText">Mode Terang</span>
+                </button>
+                <div class="badge">
+                    <i class="fas fa-star-of-life"></i> AI Powered Tajwid
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== TAB NAVIGASI ========== -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="ngaji">
+                <i class="fas fa-microphone-alt"></i> <span>🎤 Ngaji</span>
+            </button>
+            <button class="tab-btn" data-tab="progress">
+                <i class="fas fa-chart-line"></i> <span>📊 Progress Saya</span>
+            </button>
+        </nav>
+
+        <!-- ========== TAB NGAJI ========== -->
+        <div id="tab-ngaji" class="tab-content active">
+            <div class="main-grid">
+                <!-- KOLOM KIRI: Pilih Surat & Teks Quran -->
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-book-quran"></i> Pilih Surat
+                    </div>
+                    <select id="surahSelect" class="select-surah">
+                        <option value="">Memuat daftar surat...</option>
+                    </select>
+
+                    <div class="card-title" style="margin-top: 1rem;">
+                        <i class="fas fa-text-height"></i> Teks Quran
+                    </div>
+                    <div id="surahTextDisplay" class="surah-text-container">
+                        <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Pilih surat untuk menampilkan
+                            ayat...</div>
+                    </div>
+                    <div class="correction-box" id="tajwidHint">
+                        <i class="fas fa-microphone-alt"></i> <strong>Tips Tajwid:</strong> Rekam atau upload bacaanmu,
+                        AI akan memberikan koreksi detail per ayat.
+                    </div>
+                </div>
+
+                <!-- KOLOM KANAN: Rekam, Upload, Hasil Koreksi -->
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-microphone"></i> Rekam / Upload Bacaan
+                    </div>
+                    <div class="recording-area">
+                        <div class="btn-group">
+                            <button id="recordBtn" class="btn btn-primary"><i class="fas fa-circle"></i> Mulai
+                                Rekam</button>
+                            <button id="stopBtn" class="btn btn-danger" disabled><i class="fas fa-stop"></i>
+                                Hentikan</button>
+                            <input type="file" id="audioFileInput" accept="audio/*" style="display:none;" />
+                            <button id="uploadBtn" class="btn btn-secondary"><i class="fas fa-upload"></i> Upload
+                                Audio</button>
+                        </div>
+                        <div id="recordingStatus" class="status-recording">⚪ Belum ada rekaman</div>
+                        <audio id="audioPlayback" controls style="margin-top: 12px; display: none;"></audio>
+                    </div>
+
+                    <div class="card-title" style="margin-top: 0.5rem;">
+                        <i class="fas fa-check-double"></i> Hasil Koreksi Tajwid
+                    </div>
+                    <div id="correctionResult" class="correction-box">
+                        <p><i class="fas fa-microphone"></i> Silakan rekam atau upload bacaan surat yang dipilih...</p>
+                    </div>
+                    <div id="accuracyScore" class="accuracy"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== TAB PROGRESS ========== -->
+        <div id="tab-progress" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-chart-simple"></i> Statistik Belajar Saya
+                </div>
+                <div id="statsContainer" class="stats-dashboard">
+                    <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Memuat data...</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-history"></i> Riwayat Sesi
+                </div>
+                <div id="historyContainer" class="history-list">
+                    <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Memuat riwayat...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Popup Cara Baca yang Benar -->
+    <div id="modalCaraBaca" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-book-open"></i> Cara Baca yang Benar</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Isi akan diisi oleh JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-close" onclick="closeModal()">Mengerti, terima kasih</button>
+            </div>
+        </div>
+    </div>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+            }
+        }
+    </script>
+    <script type="module" src="static/script.js"></script>
+</body>
+
+</html>
