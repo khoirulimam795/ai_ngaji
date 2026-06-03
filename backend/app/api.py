@@ -1,4 +1,3 @@
-# backend/app/api.py
 import sys
 from pathlib import Path
 
@@ -31,23 +30,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# # Serve static files
-# app.mount("/static", StaticFiles(directory="app/static"), name="static")
-
-# @app.get("/")
-# async def serve_frontend():
-#     return FileResponse("app/static/index.html")
-
 @app.get("/surahs")
 def get_surahs():
     base_dir = Path(__file__).parent.parent
-    surat_dir = base_dir / "surat"
+    path_surat = base_dir / "surat"
     
-    if not surat_dir.exists():
+    if not path_surat.exists():
         return {"surahs": []}
     
     surahs = []
-    for f in surat_dir.glob("surah_*.json"):
+    for f in path_surat.glob("surah_*.json"):
         try:
             num = int(f.stem.replace("surah_", ""))
             with open(f, "r", encoding="utf-8") as fp:
@@ -92,9 +84,13 @@ async def get_ayat(surah_number: int):
     ayats.sort(key=lambda x: x["nomor"])
     return {"ayats": ayats}
 
+# ============================================================
+# ENDPOINT: ANALISIS AUDIO (OTOMATIS SIMPAN PROGRESS)
+# ============================================================
 @app.post("/analyze")
 async def analyze_audio(
     surah: int = Form(...),
+    user_id: str = Form(...),  # Menerima user_id dari Frontend form-data
     file: UploadFile = File(...)
 ):
     suffix = Path(file.filename).suffix
@@ -127,6 +123,18 @@ async def analyze_audio(
 
         for r in tajwid_results:
             r.pop("word_score", None)
+
+        # ========== AUTOMATICALLY SAVE SESSION TO DB ==========
+        save_session(
+            user_id=user_id,
+            surah=surah,
+            surah_name=surah_data.get("name", f"Surah {surah}"),
+            accuracy=round(accuracy, 1),
+            correct=correct,
+            wrong=wrong,
+            errors=tajwid_results
+        )
+        # =====================================================
 
         return {
             "status": "success",

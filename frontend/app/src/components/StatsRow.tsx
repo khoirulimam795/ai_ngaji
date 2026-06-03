@@ -18,16 +18,16 @@ export default function StatsRow({ stats, loading, onMascotMessage }: StatsRowPr
       gsap.fromTo(
         cards,
         { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.4, stagger: 0.15, ease: 'power2.out', delay: 0.5 }
+        { opacity: 1, y: 0, duration: 0.4, stagger: 0.15, ease: 'power2.out', delay: 0.3 }
       );
     }
   }, [stats]);
 
   if (loading) {
     return (
-      <div className="grid grid-cols-3 gap-3 lg:gap-4 mt-4">
-        {[1, 2, 3].map(i => (
-          <div key={i} className="glass-card p-4 lg:p-6 h-24 lg:h-28 animate-shimmer rounded-2xl" />
+      <div className="grid grid-cols-3 gap-3 lg:gap-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="glass-card p-4 lg:p-6 h-24 animate-shimmer rounded-2xl" />
         ))}
       </div>
     );
@@ -37,10 +37,10 @@ export default function StatsRow({ stats, loading, onMascotMessage }: StatsRowPr
     {
       icon: Trophy,
       iconColor: '#D4AF37',
-      value: stats?.average_score ?? 0,
+      value: stats?.avg_accuracy ?? 0,
       suffix: ' / 100',
       label: 'Rata-rata Skor',
-      desc: 'dari 100',
+      desc: 'rata-rata dari 100',
     },
     {
       icon: BookOpen,
@@ -53,10 +53,12 @@ export default function StatsRow({ stats, loading, onMascotMessage }: StatsRowPr
     {
       icon: CheckCircle,
       iconColor: '#4ADE80',
-      value: stats?.surahs_completed ?? 0,
+      // Sementara pakai total_sessions lagi sampai backend punya endpoint surah unik
+      // Nanti bisa ganti dengan stats?.unique_surahs ?? 0 jika sudah ada
+      value: stats?.total_sessions ?? 0,
       suffix: '',
-      label: 'Surat Selesai',
-      desc: 'surat dilancarkan',
+      label: 'Surat Dilancarkan',
+      desc: 'surat selesai',
     },
   ];
 
@@ -66,7 +68,9 @@ export default function StatsRow({ stats, loading, onMascotMessage }: StatsRowPr
         <div
           key={item.label}
           className="stat-card glass-card p-4 lg:p-6 glass-card-hover cursor-pointer"
-          onMouseEnter={() => onMascotMessage(`Kartu "${item.label}" menunjukkan ${item.desc.toLowerCase()}!`)}
+          onMouseEnter={() =>
+            onMascotMessage(`Kartu "${item.label}" menunjukkan ${item.desc.toLowerCase()}!`)
+          }
         >
           <div className="flex items-center gap-2 mb-2 lg:mb-3">
             <div

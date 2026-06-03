@@ -28,7 +28,7 @@ export default function RekamBacaan() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState<any>(null);
   const [statusText, setStatusText] = useState('⚪ Belum ada rekaman');
-  
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -164,8 +164,12 @@ export default function RekamBacaan() {
     setProcessing(true);
     setStatusText('🤖 AI sedang menganalisis...');
 
+    // Ambil user_id dari localStorage
+    const userId = localStorage.getItem('ngaji_user_id') || 'unknown';
+
     const formData = new FormData();
     formData.append('surah', currentSurahId.toString());
+    formData.append('user_id', userId);
     formData.append('file', recordedBlob, 'recording.wav');
 
     try {
@@ -327,7 +331,7 @@ export default function RekamBacaan() {
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 border-l-3 border-[#D4AF37] pl-3" style={{ color: '#E8DCC4' }}>
             <i className="fas fa-microphone"></i> Rekam / Upload Bacaan
           </h3>
-          
+
           <div className="flex gap-3 mb-4">
             <button
               onClick={startRecording}
@@ -379,7 +383,7 @@ export default function RekamBacaan() {
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 border-l-3 border-[#D4AF37] pl-3" style={{ color: '#E8DCC4' }}>
               <i className="fas fa-check-double"></i> Hasil Koreksi Tajwid
             </h3>
-            
+
             <div className="grid grid-cols-3 gap-3 mb-4">
               <div className="text-center p-3 rounded-xl bg-[rgba(0,0,0,0.5)]">
                 <div className="text-2xl font-bold text-[#D4AF37]">{accuracy}%</div>

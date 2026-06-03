@@ -1,24 +1,30 @@
+// src/hooks/useStats.ts
 import { useState, useEffect } from 'react';
 
 const API_BASE = 'http://localhost:8000';
 
 export interface UserStats {
-  average_score: number;
   total_sessions: number;
-  surahs_completed: number;
+  avg_accuracy: number;
+  best_accuracy: number;
+  total_correct: number;
+  total_wrong: number;
+  total_checks: number;
 }
 
-export interface SurahProgress {
-  surah_number: number;
+export interface SessionHistory {
+  id: number;
+  surah: number;
   surah_name: string;
-  arabic_name: string;
-  completion_pct: number;
-  last_accessed: string;
+  accuracy: number;
+  correct_count: number;
+  wrong_count: number;
+  created_at: string;
 }
 
 export function useStats(userId: string | undefined) {
   const [stats, setStats] = useState<UserStats | null>(null);
-  const [history, setHistory] = useState<SurahProgress[]>([]);
+  const [history, setHistory] = useState<SessionHistory[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,27 +35,30 @@ export function useStats(userId: string | undefined) {
         const statsRes = await fetch(`${API_BASE}/user/${userId}/stats`);
         if (statsRes.ok) {
           const statsData = await statsRes.json();
-          setStats(statsData);
+          setStats(statsData.stats); // karena backend return { stats: ... }
         } else {
-          setStats({ average_score: 78, total_sessions: 24, surahs_completed: 5 });
+          throw new Error('Stats fetch failed');
         }
 
-        const historyRes = await fetch(`${API_BASE}/user/${userId}/history`);
+        const historyRes = await fetch(`${API_BASE}/user/${userId}/history?limit=10`);
         if (historyRes.ok) {
           const historyData = await historyRes.json();
-          setHistory(historyData.slice(0, 2));
+          setHistory(historyData.history || []);
         } else {
-          setHistory([
-            { surah_number: 1, surah_name: 'Al-Fatihah', arabic_name: 'الفاتحة', completion_pct: 85, last_accessed: '2 jam lalu' },
-            { surah_number: 112, surah_name: 'Al-Ikhlas', arabic_name: 'الإخلاص', completion_pct: 60, last_accessed: '1 hari lalu' },
-          ]);
+          throw new Error('History fetch failed');
         }
-      } catch {
-        setStats({ average_score: 78, total_sessions: 24, surahs_completed: 5 });
-        setHistory([
-          { surah_number: 1, surah_name: 'Al-Fatihah', arabic_name: 'الفاتحة', completion_pct: 85, last_accessed: '2 jam lalu' },
-          { surah_number: 112, surah_name: 'Al-Ikhlas', arabic_name: 'الإخلاص', completion_pct: 60, last_accessed: '1 hari lalu' },
-        ]);
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+        // Optional: fallback mock data
+        setStats({
+          total_sessions: 0,
+          avg_accuracy: 0,
+          best_accuracy: 0,
+          total_correct: 0,
+          total_wrong: 0,
+          total_checks: 0
+        });
+        setHistory([]);
       } finally {
         setLoading(false);
       }
