@@ -1,10 +1,19 @@
 import { Home, BookOpen, Mic, HelpCircle, BarChart2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useStats } from '@/hooks/useStats';
+import { useUser } from '@/hooks/useUser';
 
 export default function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
+  
+  // ✅ FIX 1: Panggil hooks di TOP LEVEL (bukan di dalam map)
+  const { user } = useUser();
+  const { history } = useStats(user?.id);
+  
+  // Hitung komentar belum dibaca
+  const unreadComments = history?.filter(h => h.teacher_comment && !h.comment_read_at).length || 0;
 
   const navItems = [
     { path: '/', icon: Home, label: 'Beranda' },
@@ -29,6 +38,7 @@ export default function BottomNav() {
           {navItems.map((item) => {
             const isActive = currentPath === item.path;
             const Icon = item.icon;
+            const isProgress = item.path === '/progress';
 
             if (item.center) {
               return (
@@ -62,13 +72,24 @@ export default function BottomNav() {
                 onClick={() => navigate(item.path)}
                 className="flex flex-col items-center justify-center gap-1 min-w-[56px] py-2 transition-all duration-200 hover:opacity-80"
               >
-                <Icon
-                  size={22}
-                  style={{
-                    color: isActive ? '#D4AF37' : '#4A5D70',
-                    filter: isActive ? 'drop-shadow(0 0 4px rgba(212,175,55,0.4))' : 'none',
-                  }}
-                />
+                {/* ✅ FIX 2: Tambahkan wrapper relative untuk badge */}
+                <div className="relative">
+                  <Icon
+                    size={22}
+                    style={{
+                      color: isActive ? '#D4AF37' : '#4A5D70',
+                      filter: isActive ? 'drop-shadow(0 0 4px rgba(212,175,55,0.4))' : 'none',
+                    }}
+                  />
+                  
+                  {/* 🔥 BADGE MERAH NOTIFIKASI (Hanya muncul di Progress) */}
+                  {isProgress && unreadComments > 0 && (
+                    <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full border-2 border-[#0D1B2A] animate-pulse px-1">
+                      {unreadComments > 9 ? '9+' : unreadComments}
+                    </span>
+                  )}
+                </div>
+
                 <span
                   className="text-[10px] font-medium"
                   style={{ color: isActive ? '#D4AF37' : '#4A5D70' }}
@@ -105,6 +126,7 @@ export default function BottomNav() {
           {navItems.map((item) => {
             const isActive = currentPath === item.path;
             const Icon = item.icon;
+            const isProgress = item.path === '/progress';
 
             if (item.center) {
               return (
@@ -127,7 +149,7 @@ export default function BottomNav() {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105"
+                className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 relative"
                 style={{
                   background: isActive ? 'rgba(212,175,55,0.15)' : 'transparent',
                   color: isActive ? '#D4AF37' : '#4A5D70',
@@ -135,6 +157,13 @@ export default function BottomNav() {
                 title={item.label}
               >
                 <Icon size={22} />
+                
+                {/* 🔥 BADGE MERAH NOTIFIKASI DESKTOP */}
+                {isProgress && unreadComments > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full border-2 border-[#0D1B2A] animate-pulse px-1">
+                    {unreadComments > 9 ? '9+' : unreadComments}
+                  </span>
+                )}
               </button>
             );
           })}

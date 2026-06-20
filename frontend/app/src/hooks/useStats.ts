@@ -1,7 +1,8 @@
 // src/hooks/useStats.ts
 import { useState, useEffect } from 'react';
 
-const API_BASE = 'http://localhost:8000';
+import { API_BASE } from '../lib/api';
+// const API_BASE = 'https://wand-prowling-overstep.ngrok-free.dev';
 
 export interface UserStats {
   total_sessions: number;
@@ -20,8 +21,17 @@ export interface SessionHistory {
   correct_count: number;
   wrong_count: number;
   created_at: string;
+  teacher_comment?: string | null;   // <-- TAMBAHKAN INI
+  comment_read_at?: string | null;   // <-- TAMBAHKAN INI
 }
 
+export interface SurahProgress {
+  surah_number: number;
+  surah_name: string;
+  arabic_name: string;
+  completion_pct: number;
+  last_accessed: string;
+}
 export function useStats(userId: string | undefined) {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [history, setHistory] = useState<SessionHistory[]>([]);
