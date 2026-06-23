@@ -30,7 +30,7 @@ PROJECT_ROOT = BACKEND_DIR.parent
 sys.path.insert(0, str(BACKEND_DIR))
 
 # ── KONFIGURASI ──────────────────────────────────────────
-NGROK_TOKEN = "3EdW1D87mbcQSpwjdjfZlgrHoBR_4eKk3DwRRWLSe65ivZ7ye"  # ← GANTI PUNYA LO
+NGROK_TOKEN = "ganti"  # ← GANTI PUNYA LO
 BACKEND_PORT = 8000
 # ──────────────────────────────────────────────────────────
 
